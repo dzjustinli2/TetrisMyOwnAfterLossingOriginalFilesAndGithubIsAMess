@@ -54,10 +54,10 @@ class Board {
 
     }
 
-    private static final int PLACE_OK = 0;
-    private static final int PLACE_ROW_FILLED = 1;
-    private static final int PLACE_OUT_OF_BOUNDS = 2;
-    private static final int PLACE_BAD = 3;
+     static final int PLACE_OK = 0;
+     static final int PLACE_ROW_FILLED = 1;
+     static final int PLACE_OUT_OF_BOUNDS = 2;
+     static final int PLACE_BAD = 3;
 
     int getWIDTH() {
         return WIDTH;
@@ -150,7 +150,7 @@ class Board {
         backupMaxHeight = maxHeight;
     }
 
-    void clearRow() {
+    int clearRow() {
 
         committed = false;
 
@@ -217,6 +217,8 @@ class Board {
         computeMaxHeight();
 
         sanityCheck();
+        
+        return numberOfRowsCleared;
     }
 
     private int computeMaxHeight() {
