@@ -54,10 +54,10 @@ class Board {
 
     }
 
-     static final int PLACE_OK = 0;
-     static final int PLACE_ROW_FILLED = 1;
-     static final int PLACE_OUT_OF_BOUNDS = 2;
-     static final int PLACE_BAD = 3;
+    static final int PLACE_OK = 0;
+    static final int PLACE_ROW_FILLED = 1;
+    static final int PLACE_OUT_OF_BOUNDS = 2;
+    static final int PLACE_BAD = 3;
 
     int getWIDTH() {
         return WIDTH;
@@ -70,8 +70,8 @@ class Board {
     boolean[][] getGrid() {
         return grid;
     }
-    
-    boolean getGridAtCoordinate(int xCoordinate, int yCoordinate){
+
+    boolean getGridAtCoordinate(int xCoordinate, int yCoordinate) {
         return grid[xCoordinate][yCoordinate];
     }
 
@@ -91,11 +91,10 @@ class Board {
 
         if (committed == true) {
             committed = false;
+
         } else {
             throw new RuntimeException("board is in the state of uncommited when the place method is called");
         }
-
-        backup();
 
         int result = PLACE_OK;
         int placedPieceXCoordinate;
@@ -140,16 +139,18 @@ class Board {
         //to recalculate "maxHeight"? Or calling "computeMaxHeight()" is good enough in these aspects .
         computeMaxHeight();
 
+        backup();
+
         sanityCheck();
 
         return result;
     }
-    
-    int getHeightAtColume(int xCoordinate){
+
+    int getHeightAtColume(int xCoordinate) {
         return heightOfColumes[xCoordinate];
     }
-    
-    int getWidthAtRow(int yCoordiante){
+
+    int getWidthAtRow(int yCoordiante) {
         return widthOfRows[yCoordiante];
     }
 
@@ -188,21 +189,19 @@ class Board {
                     rowFrom++;
                 }
             }
-            
-            while(hasFilledRow && widthOfRows[rowFrom] == WIDTH){
+
+            while (hasFilledRow && widthOfRows[rowFrom] == WIDTH) {
                 rowFrom++;
             }
-            
+
             if (hasFilledRow) {
                 copyRow(rowTo, rowFrom);
             }
         }
-        
+
         fillEmptyRows(rowTo, rowFrom);
-        
-        
-        
-                // Rather than iterating through the grid every time to compute the heights
+
+        // Rather than iterating through the grid every time to compute the heights
         // we do the following.
         // Case 1) Usually the height of every column decreases by the no of rows cleared
         // Case 2) The exception to this happens when there is a gap below the cleared out row.
@@ -212,12 +211,12 @@ class Board {
         // +++ ++  <-- gap in the 4th column makes updated height
         // +++ ++  <-- of the 4th column using case 1 invalid
         // + ++++
-        for(int i = 0; i < heightOfColumes.length; i++){
+        for (int i = 0; i < heightOfColumes.length; i++) {
             heightOfColumes[i] -= numberOfRowsCleared;
-            if(heightOfColumes[i] > 0 && !grid[i][heightOfColumes[i] - 1]){
+            if (heightOfColumes[i] > 0 && !grid[i][heightOfColumes[i] - 1]) {
                 heightOfColumes[i] = 0;
-                for(int j = 0; j < maxHeight; j++){
-                    if(grid[i][j]){
+                for (int j = 0; j < maxHeight; j++) {
+                    if (grid[i][j]) {
                         heightOfColumes[i] = j + 1;
                     }
                 }
@@ -229,7 +228,7 @@ class Board {
         computeMaxHeight();
 
         sanityCheck();
-        
+
         return numberOfRowsCleared;
     }
 
@@ -256,7 +255,7 @@ class Board {
         //"rowTo += 1" here because the original "rowTo" is copied from the original "rowFrom",
         //therefore we need to add 1 to "rowTo" so we are filling rows all rows that are 
         //previously occupied but is empty now 
-        for (; rowTo <= rowFrom; rowTo++) {
+        for (; rowTo < rowFrom; rowTo++) {
             for (int i = 0; i < WIDTH; i++) {
                 grid[i][rowTo] = false;
             }
@@ -301,12 +300,12 @@ class Board {
             return;
         }
 
-        commit();
-
         grid = backupGrid;
         widthOfRows = backupWidthOfRows;
         heightOfColumes = backupHeightOfColumes;
         maxHeight = backupMaxHeight;
+
+        commit();
 
         sanityCheck();
 

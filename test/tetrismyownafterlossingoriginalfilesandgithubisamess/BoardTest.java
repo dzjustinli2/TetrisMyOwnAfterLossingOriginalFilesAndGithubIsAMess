@@ -314,9 +314,57 @@ public class BoardTest {
     @Test
     public void testUndo() {
         System.out.println("undo");
-        Board instance = null;
-        instance.undo();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        board.place(pyramid, 0, 0);
+        board.clearRow();
+        board.undo();
+        
+        int[] expectedWidthOfRows = {3, 1, 0, 0 ,0 ,0};
+        int[] expectedHeightOfColumes = {1, 2, 1};
+        int expectedMaxHeight = 2;
+        
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+        assertArrayEquals(expectedWidthOfRows, board.getWidthOfRows());
+        assertEquals(expectedMaxHeight, board.getMaxHeight());
+    }
+    
+    @Test 
+    public void testUndoAfterPlacingPyramidAndStickAndS2AndCallingClearRow(){
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(stick, 0, 1);
+        board.commit();
+        board.place(s2, 0, 4);
+        board.clearRow();
+        
+        board.undo();
+        
+        int[] expectedWidthOfRows = { 3, 2, 1, 1, 3, 2};
+        int[] expectedHeightOfColumes = {6, 6, 5};
+        int expectedMaxHeight = 6;
+        
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+        assertArrayEquals(expectedWidthOfRows, board.getWidthOfRows());
+        assertEquals(expectedMaxHeight, board.getMaxHeight());
+        
+    }
+    
+    @Test
+    public void testUndoAfterPlacingPyramidAndPyramid3AndSquare(){
+        board.place(pyramid, 0, 0);
+        board.commit();
+        board.place(pyramid3, 0, 2);
+        board.commit();
+        board.place(square, 1, 4);
+        board.clearRow();
+        
+        board.undo();
+        
+        int[] expectedHeightOfColumes = {4, 6, 6};
+        int[] expectedWidthOfRows = { 3, 1, 1, 3, 2, 2};
+        int expectedMaxHeight = 6;
+        
+        assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
+        assertArrayEquals(expectedWidthOfRows, board.getWidthOfRows());
+        assertEquals(expectedMaxHeight, board.getMaxHeight());
     }
 }
