@@ -70,6 +70,10 @@ class Board {
     boolean[][] getGrid() {
         return grid;
     }
+    
+    boolean getGridAtCoordinate(int xCoordinate, int yCoordinate){
+        return grid[xCoordinate][yCoordinate];
+    }
 
     int[] getWidthOfRows() {
         return widthOfRows;
@@ -139,6 +143,14 @@ class Board {
         sanityCheck();
 
         return result;
+    }
+    
+    int getHeightAtColume(int xCoordinate){
+        return heightOfColumes[xCoordinate];
+    }
+    
+    int getWidthAtRow(int yCoordiante){
+        return widthOfRows[yCoordiante];
     }
 
     private void backup() {

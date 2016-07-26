@@ -5,17 +5,29 @@
  */
 package tetrismyownafterlossingoriginalfilesandgithubisamess;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -71,6 +83,7 @@ public class JTetris extends JComponent {
     JButton stopButton;
     JButton startButton;
     JLabel timeLabel;
+    JSlider speed;
     
     public final int DELAY = 400;
 
@@ -81,7 +94,9 @@ public class JTetris extends JComponent {
     static final int DOWN = 4;
 
     JTetris(int pixels) {
-        setPreferredSize(new Dimension((WIDTH + pixels) + 2,
+        super();
+        
+        setPreferredSize(new Dimension((WIDTH * pixels) + 2,
                 (HEIGHT + TOP_SPACE) * pixels + 2));
         gameOn = false;
 
@@ -410,7 +425,181 @@ public class JTetris extends JComponent {
                 repaint();
             }
             
-            if()
+            if(board.getMaxHeight() > board.getHEIGHT() - TOP_SPACE){
+                stopGame();
+            } else {
+                addNewPiece();
+            }
+        }
+        
+        moved = (!failed && verb != DOWN);
+    }
+    
+    @Override 
+    public void paintComponent(Graphics g){
+        //TODO: why "- 1" from both width and height 
+        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        
+        //draw the line separating the top
+        int spacerY = yPixel(board.getHEIGHT() - TOP_SPACE - 1);
+        g.drawLine(0, spacerY, getWidth() - 1, spacerY);
+        
+        //check if we are drawing with clipping 
+        //Shape shape = g.getClip()
+        Rectangle clip = null;
+        if(DRAW_OPTIMISE){
+            clip = g.getClipBounds();
+        }
+        
+        //factor a few things out to help the optimizer 
+        final int dx = Math.round(widthInPixelOfABlock() - 2);
+        final int dy = Math.round(heightInPixelsOfABlock() - 2);
+        final int boardWidth = board.getWIDTH();
+        
+        int x, y;
+        //loop through and draw all the blocks
+        //left to right, bottom to top
+        for(x = 0; x < boardWidth; x++){
+            int left = xPixel(x); //the left pixel 
+            
+            //right pixel (useful to clip optimisation)
+            int right = xPixel(x + 1) - 1;
+            
+            //skip this x if it is outside the clip rect 
+            if(DRAW_OPTIMISE && clip != null){
+                if((right < clip.x) || (left >= (clip.x + clip.width))){
+                    continue;
+                }
+            }
+            
+            //draw from 0 up to the colume height 
+            final int yHeight = board.getHeightAtColume(x);
+            for(y = 0; y < yHeight; y++){
+                if(board.getGridAtCoordinate(x, y)){
+                    boolean filled = (board.getWidthAtRow(y) == boardWidth);
+                    if(filled){
+                        g.setColor(Color.green);
+                    }
+                    
+                    g.fillRect(left + 1, yPixel(y) + 1, dx, dy);
+                    
+                    if(filled){
+                        g.setColor(Color.BLACK);
+                    }
+                }
+            }
         }
     }
+    
+    public void updateTimer(){
+        double value = ((double)speed.getValue() / speed.getMaximum());
+        timer.setDelay((int)(DELAY - value * DELAY));
+    }
+    
+    public JComponent createControlPanel(){
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        //count 
+        countLabel = new JLabel("0");
+        panel.add(countLabel);
+        
+        //score
+        scoreLabel = new JLabel("0");
+        panel.add(scoreLabel);
+        
+        //time
+        timeLabel = new JLabel(" ");
+        panel.add(timeLabel);
+        
+        panel.add(Box.createVerticalStrut(12));
+        
+        //start button
+        startButton = new JButton("Start");
+        panel.add(startButton);
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        });
+        
+        stopButton = new JButton("Stop");
+        panel.add(stopButton);
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopGame();
+            }
+        });
+        
+        toggleStartAndStopButtons();
+        
+        JPanel row = new JPanel();
+        
+        //speed slider 
+        panel.add(Box.createVerticalStrut(12));
+        row.add(new JLabel("Speed"));
+        speed = new JSlider(0, 200, 100);
+        speed.setPreferredSize(new Dimension(100, 15));
+        
+        updateTimer();
+        row.add(speed);
+        
+        panel.add(row);
+        speed.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateTimer();
+            }
+        });
+        
+        testButton = new JCheckBox("Test sequence");
+        panel.add(testButton);
+        
+        return panel;
+       
+    }
+    
+    public static JFrame createFrame(JTetris tetris){
+        JFrame frame = new JFrame("Tetris");
+        JComponent container = (JComponent)frame.getContentPane();
+        container.setLayout(new BorderLayout());
+        
+        //install the passed in JTetris in the center 
+        container.add(tetris, BorderLayout.CENTER);
+        
+        //create and install the panel of control
+        JComponent controls = tetris.createControlPanel();
+        container.add(controls, BorderLayout.EAST);
+        
+        //add the quit button last so it's at hte bottom 
+        controls.add(Box.createVerticalStrut(12));
+        JButton quit = new JButton("Quit");
+        controls.add(quit);
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        
+        return frame;
+    }
+    
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored){
+            
+        }
+        
+        JTetris tetirs = new JTetris(16);
+        JFrame frame = JTetris.createFrame(tetirs);
+        frame.setVisible(true);
+    }
+    
 }
