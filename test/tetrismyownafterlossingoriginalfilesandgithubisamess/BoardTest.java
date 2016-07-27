@@ -308,9 +308,9 @@ public class BoardTest {
         board.clearRow();
         board.undo();
 
-        int[] expectedWidthOfRows = {3, 1, 0, 0, 0, 0};
-        int[] expectedHeightOfColumes = {1, 2, 1};
-        int expectedMaxHeight = 2;
+        int[] expectedWidthOfRows = {0, 0, 0, 0, 0, 0};
+        int[] expectedHeightOfColumes = {0, 0, 0};
+        int expectedMaxHeight = 0;
 
         assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
         assertArrayEquals(expectedWidthOfRows, board.getWidthOfRows());
@@ -328,9 +328,9 @@ public class BoardTest {
 
         board.undo();
 
-        int[] expectedWidthOfRows = {3, 2, 1, 1, 3, 2};
-        int[] expectedHeightOfColumes = {6, 6, 5};
-        int expectedMaxHeight = 6;
+        int[] expectedWidthOfRows = {3, 2, 1, 1, 1, 0};
+        int[] expectedHeightOfColumes = {5, 2, 1};
+        int expectedMaxHeight = 5;
 
         assertArrayEquals(expectedHeightOfColumes, board.getHeightOfColumes());
         assertArrayEquals(expectedWidthOfRows, board.getWidthOfRows());
@@ -412,6 +412,16 @@ public class BoardTest {
         expectedWidthOfRows = new int[6];
         expectedMaxHeight = 0;
 
+        assertArrayEquals(expectedHeightOfColumes, boardWidthFourHeightSix.getHeightOfColumes());
+        assertArrayEquals(expectedWidthOfRows, boardWidthFourHeightSix.getWidthOfRows());
+        assertEquals(expectedMaxHeight, boardWidthFourHeightSix.getMaxHeight());
+        
+        boardWidthFourHeightSix.place(pyramid, 1, 2);
+        
+        expectedHeightOfColumes = new int[]{0, 3, 4, 3};
+        expectedWidthOfRows = new int[]{0, 0, 3, 1, 0, 0};
+        expectedMaxHeight = 4;
+        
         assertArrayEquals(expectedHeightOfColumes, boardWidthFourHeightSix.getHeightOfColumes());
         assertArrayEquals(expectedWidthOfRows, boardWidthFourHeightSix.getWidthOfRows());
         assertEquals(expectedMaxHeight, boardWidthFourHeightSix.getMaxHeight());

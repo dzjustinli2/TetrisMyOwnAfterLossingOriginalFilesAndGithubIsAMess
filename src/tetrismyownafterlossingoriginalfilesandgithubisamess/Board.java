@@ -237,8 +237,9 @@ class Board {
         return numberOfRowsCleared;
     }
 
-    private int computeMaxHeight() {
+    private void computeMaxHeight() {
 //        //TODO: initalise "maxHeight" here is too late, but where should it be initialised then
+
         maxHeight = 0;
 
         for (int i = 0; i < heightOfColumes.length; i++) {
@@ -246,7 +247,6 @@ class Board {
                 maxHeight = heightOfColumes[i];
             }
         }
-        return maxHeight;
     }
 
     private void copyRow(int rowTo, int rowFrom) {
@@ -305,9 +305,17 @@ class Board {
             return;
         }
 
-        grid = backupGrid;
-        widthOfRows = backupWidthOfRows;
-        heightOfColumes = backupHeightOfColumes;
+//        grid = backupGrid;
+//        widthOfRows = backupWidthOfRows;
+//        heightOfColumes = backupHeightOfColumes;
+//        maxHeight = backupMaxHeight;
+
+        System.arraycopy(backupHeightOfColumes, 0, heightOfColumes, 0, WIDTH);
+        System.arraycopy(backupWidthOfRows, 0, widthOfRows, 0, HEIGHT);
+        for(int i = 0; i < grid.length; i++){
+            System.arraycopy(backupGrid[i], 0, grid[i], 0, HEIGHT);
+        }
+        
         maxHeight = backupMaxHeight;
 
         commit();
@@ -352,6 +360,7 @@ class Board {
         }
 
         if (maxHeight != checkMaxHeight) {
+            System.out.println("hello");
             throw new RuntimeException("Actual max height does not equal to checked max height");
         }
     }
