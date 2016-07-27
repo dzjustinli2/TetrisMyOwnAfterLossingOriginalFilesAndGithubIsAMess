@@ -181,7 +181,7 @@ class Board {
 
         // when "rowFrom < maxHeight", simply fill all rows above "rowTo" to false 
         //note: "rowFrom" is index and starts from 0, "maxHeight" starts at 1
-        for (rowTo = 0, rowFrom = 1; rowFrom < maxHeight; rowTo++, rowFrom++) {
+        for (rowTo = 0, rowFrom = 1; rowFrom <= maxHeight; rowTo++, rowFrom++) {
             if (widthOfRows[rowTo] == WIDTH) {
                 //this if statment should only ever be executed once, i.e. when the first filled row
                 //is detected, which in turn means that "hasFilledRow" should still be false 
