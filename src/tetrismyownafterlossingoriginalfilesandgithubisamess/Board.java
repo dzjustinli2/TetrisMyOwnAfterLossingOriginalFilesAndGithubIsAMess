@@ -72,7 +72,9 @@ class Board {
     }
 
     boolean getGridAtCoordinate(int xCoordinate, int yCoordinate) {
-        return grid[xCoordinate][yCoordinate];
+        return (xCoordinate < 0 || yCoordinate < 0
+                || xCoordinate >= WIDTH || yCoordinate >= HEIGHT
+                || grid[xCoordinate][yCoordinate]);
     }
 
     int[] getWidthOfRows() {
@@ -95,6 +97,8 @@ class Board {
         } else {
             throw new RuntimeException("board is in the state of uncommited when the place method is called");
         }
+
+        backup();
 
         int result = PLACE_OK;
         int placedPieceXCoordinate;
@@ -139,8 +143,6 @@ class Board {
         //to recalculate "maxHeight"? Or calling "computeMaxHeight()" is good enough in these aspects .
         computeMaxHeight();
 
-        backup();
-
         sanityCheck();
 
         return result;
@@ -165,7 +167,10 @@ class Board {
 
     int clearRow() {
 
-        committed = false;
+        if (committed) {
+            committed = false;
+            backup();
+        }
 
         //"numberOfRowsCleared" is used recalculate "maxHeight",
         //also, should I return the "numberOfRowscleared"? 
